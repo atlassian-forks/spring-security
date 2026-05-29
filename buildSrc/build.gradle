@@ -1,6 +1,7 @@
 apply plugin: 'groovy'
 
 repositories {
+    maven { url = 'https://packages.atlassian.com/maven/repository/public' }
     mavenCentral()
     maven {
         name = 'SpringSource Enterprise Release'

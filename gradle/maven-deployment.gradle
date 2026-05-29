@@ -11,16 +11,21 @@ artifacts {
     archives sourceJar
 }
 
-// Configuration for SpringSource s3 maven deployer
 configurations {
     deployerJars
-}
-dependencies {
-    deployerJars "org.springframework.build.aws:org.springframework.build.aws.maven:3.0.0.RELEASE"
 }
 
 install {
     repositories.mavenInstaller {
+        customizePom(pom, project)
+    }
+}
+
+uploadArchives {
+    repositories.mavenDeployer {
+        repository(url: "https://packages.atlassian.com/maven/3rdparty") {
+            authentication(userName: project.findProperty('atlassianMavenUsername') ?: '', password: project.findProperty('atlassianMavenPassword') ?: '')
+        }
         customizePom(pom, project)
     }
 }

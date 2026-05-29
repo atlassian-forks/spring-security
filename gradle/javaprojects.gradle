@@ -2,18 +2,22 @@ import org.gradle.plugins.ide.eclipse.model.SourceFolder
 
 apply plugin: 'java'
 apply plugin: 'groovy'
-apply plugin: 'javadocHotfix'
+apply plugin: 'maven'
 apply plugin: 'eclipse-wtp'
-apply plugin: 'propdeps'
-apply plugin: 'propdeps-maven'
-apply plugin: 'propdeps-idea'
-apply plugin: 'propdeps-eclipse'
+
+// Manually define optional and provided configurations (replaces propdeps plugin)
+configurations {
+    optional
+    provided
+    compile.extendsFrom optional
+    compile.extendsFrom provided
+}
 
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
 
 ext.ehcacheVersion = '1.7.2'
-ext.aspectjVersion = '1.6.10'
+ext.aspectjVersion = '1.8.14'
 ext.apacheDsVersion = '1.5.5'
 ext.jstlVersion = '1.2.1'
 ext.jettyVersion = '6.1.26'
@@ -115,8 +119,10 @@ task integrationTest(type: Test, dependsOn: jar) {
         junitXml.destination = project.file("$project.buildDir/integration-test-results/")
     }
 }
-project.conf2ScopeMappings.addMapping(MavenPlugin.TEST_COMPILE_PRIORITY + 1, project.configurations.getByName("integrationTestCompile"), Conf2ScopeMappingContainer.TEST)
-project.conf2ScopeMappings.addMapping(MavenPlugin.TEST_COMPILE_PRIORITY + 2, project.configurations.getByName("integrationTestRuntime"), Conf2ScopeMappingContainer.TEST)
+if (project.plugins.hasPlugin('maven')) {
+    project.conf2ScopeMappings.addMapping(MavenPlugin.TEST_COMPILE_PRIORITY + 1, project.configurations.getByName("integrationTestCompile"), Conf2ScopeMappingContainer.TEST)
+    project.conf2ScopeMappings.addMapping(MavenPlugin.TEST_COMPILE_PRIORITY + 2, project.configurations.getByName("integrationTestRuntime"), Conf2ScopeMappingContainer.TEST)
+}
 check.dependsOn integrationTest
 
 dependencies {
@@ -145,7 +151,7 @@ configurations.all {
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 project.tasks.matching { it instanceof Test && it.name != 'integrationTest' }.all {
-    jvmArgs = ['-ea', '-Xmx500m', '-XX:MaxPermSize=256M']
+    jvmArgs = ['-ea', '-Xmx500m']
     maxParallelForks = guessMaxForks()
     logging.captureStandardOutput(LogLevel.INFO)
 }

@@ -2,13 +2,11 @@ import groovy.text.SimpleTemplateEngine
 
 buildscript {
     repositories {
-        maven { url "https://repo.spring.io/plugins-release" }
+        maven { url "https://packages.atlassian.com/maven/repository/public" }
+        mavenCentral()
     }
     dependencies {
-        classpath("org.springframework.build.gradle:propdeps-plugin:0.0.7")
-        classpath("org.springframework.build.gradle:spring-io-plugin:0.0.3.RELEASE")
         classpath("org.gradle.api.plugins:gradle-tomcat-plugin:1.2.3")
-        classpath('me.champeau.gradle:gradle-javadoc-hotfix-plugin:0.1')
         classpath('org.asciidoctor:asciidoctor-gradle-plugin:1.5.1')
     }
 }
@@ -32,9 +30,8 @@ allprojects {
     group = 'org.springframework.security'
 
     repositories {
+       maven { url "https://packages.atlassian.com/maven/repository/public" }
        mavenCentral()
-       maven { url "https://repo.spring.io/libs-snapshot" }
-       maven { url "https://repo.spring.io/plugins-release" }
        maven { url "http://repo.terracotta.org/maven2/" }
     }
 
@@ -98,16 +95,12 @@ configure(javaProjects) {
 
 configure(coreModuleProjects) {
     apply plugin: 'emma'
-    apply plugin: 'spring-io'
-
-    ext.springIoVersion = project.hasProperty('platformVersion') ? platformVersion : '1.1.5.RELEASE'
 
     configurations {
         jacoco //Configuration Group used by Sonar to provide Code Coverage using JaCoCo
     }
     dependencies {
-        jacoco "org.jacoco:org.jacoco.agent:0.6.2.201302030002:runtime"
-        springIoVersions "io.spring.platform:platform-versions:${springIoVersion}@properties"
+        jacoco "org.jacoco:org.jacoco.agent:0.7.9:runtime"
     }
     test {
         jvmArgs "-javaagent:${configurations.jacoco.asPath}=destfile=${buildDir}/jacoco.exec,includes=${project.group}.*"
