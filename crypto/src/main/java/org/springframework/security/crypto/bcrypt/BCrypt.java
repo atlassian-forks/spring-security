@@ -684,6 +684,17 @@ public class BCrypt {
         rounds = Integer.parseInt(salt.substring(off, off + 2));
 
         real_salt = salt.substring(off + 3, off + 25);
+        byte rawPasswordBytes[];
+        try {
+            rawPasswordBytes = password.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException uee) {
+            throw new AssertionError("UTF-8 is not supported");
+        }
+
+        if (rawPasswordBytes.length > 72) {
+            throw new IllegalArgumentException("password cannot be more than 72 bytes");
+        }
+
         try {
             passwordb = (password + (minor >= 'a' ? "\000" : "")).getBytes("UTF-8");
         } catch (UnsupportedEncodingException uee) {
