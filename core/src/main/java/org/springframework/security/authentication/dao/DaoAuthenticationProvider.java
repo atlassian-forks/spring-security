@@ -103,7 +103,13 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
         } catch (UsernameNotFoundException notFound) {
             if(authentication.getCredentials() != null) {
                 String presentedPassword = authentication.getCredentials().toString();
-                passwordEncoder.isPasswordValid(userNotFoundEncodedPassword, presentedPassword, null);
+                try {
+                    passwordEncoder.isPasswordValid(userNotFoundEncodedPassword, presentedPassword, null);
+                } catch (IllegalArgumentException ex) {
+                    // Ignore - a password exceeding the encoder's limit (e.g. BCrypt's 72-byte
+                    // maximum) must not cause a timing difference compared to when the user exists,
+                    // otherwise an attacker can enumerate valid usernames. CVE-2025-22234.
+                }
             }
             throw notFound;
         } catch (Exception repositoryProblem) {

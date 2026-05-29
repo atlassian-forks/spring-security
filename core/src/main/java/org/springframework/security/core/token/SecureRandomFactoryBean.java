@@ -22,13 +22,14 @@ public class SecureRandomFactoryBean implements FactoryBean<SecureRandom> {
     public SecureRandom getObject() throws Exception {
         SecureRandom rnd = SecureRandom.getInstance(algorithm);
 
+        // Request the next bytes, thus eagerly incurring the expense of default
+        // seeding and to prevent the seed from replacing the entire state
+        rnd.nextBytes(new byte[1]);
+
         if (seed != null) {
             // Seed specified, so use it
             byte[] seedBytes = FileCopyUtils.copyToByteArray(seed.getInputStream());
             rnd.setSeed(seedBytes);
-        } else {
-            // Request the next bytes, thus eagerly incurring the expense of default seeding
-            rnd.nextBytes(new byte[1]);
         }
 
         return rnd;
